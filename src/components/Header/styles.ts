@@ -3,7 +3,8 @@ import {scaleFontSize} from '../../utils/helpers';
 
 export default StyleSheet.create({
   header: {
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 5,
     elevation: 4,
     alignItems: 'center',
     backgroundColor: 'white',
@@ -13,6 +14,8 @@ export default StyleSheet.create({
       height: 2,
     },
     flexDirection: 'row',
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
   },
   backButton: {
     fontSize: scaleFontSize(28),
