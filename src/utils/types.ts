@@ -47,3 +47,8 @@ interface MovieData {
   resultCount: number;
   results: MovieItem[];
 }
+
+interface MoviesByGenre {
+  genre: string;
+  data: MovieItem[];
+}

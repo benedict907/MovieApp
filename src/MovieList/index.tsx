@@ -5,8 +5,10 @@ import {
   Text,
   TouchableOpacity,
   useWindowDimensions,
+  View,
 } from 'react-native';
 import styles from './styles';
+import {GENRE_TYPES} from '../constants/constants';
 
 interface MovieListProps {
   cachedData: string;
@@ -17,14 +19,15 @@ export default function MovieList({
   cachedData,
   onMoviePressed,
 }: MovieListProps) {
-  const {width, height} = useWindowDimensions();
-
-  // Determine if landscape based on updated dimensions
-  const landscape = width > height;
-
-  // Calculate image size based on orientation
-  const imageWidth = landscape ? width / 4 : width / 3.6;
-  const imageHeight = landscape ? height / 4 : height / 5;
+  // Filter movies by genre
+  const moviesByGenre: MoviesByGenre[] = Object.values(GENRE_TYPES).map(
+    genre => ({
+      genre,
+      data: JSON.parse(cachedData).filter(
+        (movie: MovieItem) => movie.primaryGenreName === genre,
+      ),
+    }),
+  );
 
   const renderItem = ({item}: {item: MovieItem}) => (
     <TouchableOpacity
@@ -33,7 +36,7 @@ export default function MovieList({
       <Image
         resizeMode="cover"
         source={{uri: item.artworkUrl100}}
-        style={[styles.image, {width: imageWidth, height: imageHeight}]}
+        style={[styles.image]}
       />
       <Text numberOfLines={1} style={styles.title}>
         {item.trackName}
@@ -41,14 +44,29 @@ export default function MovieList({
     </TouchableOpacity>
   );
 
+  const renderGenreList = ({
+    item,
+  }: {
+    item: {genre: string; data: MovieItem[]};
+  }) => (
+    <View style={styles.genreSection}>
+      <Text style={styles.genreTitle}>{item.genre}</Text>
+      <FlatList
+        horizontal
+        data={item.data}
+        renderItem={renderItem}
+        keyExtractor={movie => movie.trackId.toString()}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.genreList}
+      />
+    </View>
+  );
   return (
     <FlatList
-      showsVerticalScrollIndicator={false}
-      data={cachedData ? JSON.parse(cachedData) : []}
-      renderItem={renderItem}
-      keyExtractor={item => item?.trackId.toString()}
+      data={moviesByGenre.filter(genre => genre.data.length > 0)}
+      renderItem={renderGenreList}
+      keyExtractor={item => item.genre}
       contentContainerStyle={styles.list}
-      numColumns={3} // Dynamically adjust columns
     />
   );
 }
